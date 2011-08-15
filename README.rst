@@ -20,8 +20,10 @@ In settings.py::
 
   INSTALLED_APPS += ('urlshortener',)
 
+  URLSHORTENER_SECRET = 'A password for creating a new short URL'
+
 And in urls.py, add this line to the urlpatterns::
 
-  url(r'^(?P<shortid>\S+)/$', 'urlshortener.views.open_shortid'),
+  url(r'^', include('urlshortener.urls')),
 
 You can change the subfolder if you like.
