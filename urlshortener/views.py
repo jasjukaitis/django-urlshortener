@@ -3,6 +3,7 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
+from django.core.validators import URLValidator
 from django.http import (HttpResponse, HttpResponseBadRequest,
                          HttpResponseForbidden, HttpResponseRedirect)
 from django.shortcuts import get_object_or_404
@@ -26,16 +27,17 @@ def create_shorturl(request, secret):
     if (not hasattr(settings, 'URLSHORTENER_SECRET')
         or secret != settings.URLSHORTENER_SECRET):
         return HttpResponseForbidden()
-    url = request.GET.get('url') or ''
+    url = request.GET.get('u') or ''
     if not url.startswith('http'):
         url = 'http://%s' % url
+    validate = URLValidator(verify_exists=True)
+    try:
+        validate(url)
+    except ValidationError:
+        return HttpResponseBadRequest()
     try:
         url_obj = Url.objects.get(url=url)
     except Url.DoesNotExist:
         url_obj = Url(url=url)
-        try:
-            url_obj.full_clean()
-        except ValidationError:
-            return HttpResponseBadRequest()
         url_obj.save()
     return HttpResponse(get_link(url_obj.shortid, request))
