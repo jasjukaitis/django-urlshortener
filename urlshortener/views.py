@@ -22,6 +22,11 @@ def open_shorturl(request, shortid):
     url_obj.save()
     return HttpResponseRedirect(url_obj.url)
 
+def get_actualurl(request, shortid):
+    """Returns the actual url."""
+    url_obj = get_object_or_404(Url, shortid=shortid)
+    return HttpResponse(url_obj.url)
+
 def create_shorturl(request, secret):
     """Creates a short url."""
     if (not hasattr(settings, 'URLSHORTENER_SECRET')
